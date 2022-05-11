@@ -21,19 +21,19 @@ public class ClientView extends javax.swing.JFrame {
     DefaultListModel dlm;
 
     /**
-     * Creates new form Myclient
+     * Creates new form ClientView
      */
     public ClientView() {
         initComponents();
     }
 
-    ClientView(String id, Socket s) {
+    public ClientView(String id, Socket s) {
         this.iD = id;
         try {
             initComponents();
             dlm = new DefaultListModel();
             usersIdList.setModel(dlm);
-            clientOwnIdLabel.setText(id);
+            clientIdLabel.setText(id);
             din = new DataInputStream(s.getInputStream());
             dout = new DataOutputStream(s.getOutputStream());
             new Read().start();
@@ -48,21 +48,21 @@ public class ClientView extends javax.swing.JFrame {
         public void run() {
             while (true) {
                 try {
-                    String m = din.readUTF(); //read message from server
-                    if (m.contains(":;?./=")) { //if our message contains this symbols
-                        m = m.substring(6);
+                    String msgFromServer = din.readUTF(); //read message from server
+                    if (msgFromServer.contains(":;?./=")) { //if our message contains this symbols (говно какое-то)
+                        msgFromServer = msgFromServer.substring(6);
                         dlm.clear();
-                        StringTokenizer st = new StringTokenizer(m, ","); // split all the clientIds and add to dm below(?)
+                            StringTokenizer st = new StringTokenizer(msgFromServer, ","); // split all the clientIds and add to dm below(?)
                         while (st.hasMoreTokens()) {
-                            String u = st.nextToken();
-                            if (!iD.equals(u)) { //to not to show own user's id in usersList
-                                dlm.addElement(u); //add all the active user ids to the usersList to display 
+                            String buffID = st.nextToken();
+                            if (!iD.equals(buffID)) { //to not to show own user's id in usersList
+                                dlm.addElement(buffID); //add all the active user ids to the usersList to display 
                             }
                         }
                     } else {
-                        clientChatArea.append("" + m + "\n");//otherwise print on the clients message board
+                        clientChatArea.append("" + msgFromServer + "\n");//otherwise print on the clients message board
                     }
-                } catch (Exception ex) {
+                } catch (IOException ex) {
                     ex.printStackTrace();
                     break;
                 }
@@ -80,8 +80,8 @@ public class ClientView extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        clientOwnIdLabel = new javax.swing.JLabel();
+        labelYou = new javax.swing.JLabel();
+        clientIdLabel = new javax.swing.JLabel();
         selectAllButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         clientChatArea = new javax.swing.JTextArea();
@@ -93,7 +93,6 @@ public class ClientView extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClientView");
         setMinimumSize(new java.awt.Dimension(400, 300));
-        setPreferredSize(new java.awt.Dimension(400, 300));
 
         jPanel1.setBackground(new java.awt.Color(45, 40, 62));
         jPanel1.setMaximumSize(new java.awt.Dimension(1920, 1080));
@@ -101,13 +100,13 @@ public class ClientView extends javax.swing.JFrame {
         jPanel1.setPreferredSize(new java.awt.Dimension(400, 300));
         jPanel1.setRequestFocusEnabled(false);
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI Black", 0, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(128, 43, 177));
-        jLabel1.setText("You:");
+        labelYou.setFont(new java.awt.Font("Segoe UI Black", 0, 18)); // NOI18N
+        labelYou.setForeground(new java.awt.Color(128, 43, 177));
+        labelYou.setText("You:");
 
-        clientOwnIdLabel.setFont(new java.awt.Font("Segoe UI Semilight", 0, 18)); // NOI18N
-        clientOwnIdLabel.setForeground(new java.awt.Color(209, 215, 224));
-        clientOwnIdLabel.setText(".......................");
+        clientIdLabel.setFont(new java.awt.Font("Segoe UI Semilight", 0, 18)); // NOI18N
+        clientIdLabel.setForeground(new java.awt.Color(209, 215, 224));
+        clientIdLabel.setText(".......................");
 
         selectAllButton.setBackground(new java.awt.Color(86, 79, 111));
         selectAllButton.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
@@ -144,9 +143,9 @@ public class ClientView extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(labelYou, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(clientOwnIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(clientIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(clientMessageArea, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -163,8 +162,8 @@ public class ClientView extends javax.swing.JFrame {
                 .addGap(11, 11, 11)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(selectAllButton)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(clientOwnIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(labelYou, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clientIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(10, 10, 10)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -183,11 +182,15 @@ public class ClientView extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -201,7 +204,7 @@ public class ClientView extends javax.swing.JFrame {
             String cID = clientID;
 
             if (!clientID.isEmpty()) {
-                m = "#434546@7643527835" + cID + " > " + mm + "\n";
+                m = "Sending to one person" + cID + " > " + mm + "\n";
                 dout.writeUTF(m);
                 clientMessageArea.setText("");
                 clientChatArea.append("< YOU send message to " + cID + " > " + mm + "\n");
@@ -210,13 +213,13 @@ public class ClientView extends javax.swing.JFrame {
                 clientMessageArea.setText("");
                 clientChatArea.append("< YOU to All >" + mm + "\n");
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, " User does not exist anymore.");
         }
     }//GEN-LAST:event_clientMessageAreaActionPerformed
 
-    private void formVindowClosing(java.awt.event.WindowEvent evt) {
-        String i = "9384-983UUUUUUU";
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {
+        String i = "I am exiting";
         try {
             dout.writeUTF(i);
             this.dispose();
@@ -226,7 +229,7 @@ public class ClientView extends javax.swing.JFrame {
     }
 
     private void ULValueChanged(javax.swing.event.ListSelectionEvent evt) {
-        clientID = (String) usersIdList.getSelectedValue();
+        clientID = (String)usersIdList.getSelectedValue();
     }
 
     private void selectAllActionPerformed(java.awt.event.ActionEvent evt) {
@@ -272,12 +275,12 @@ public class ClientView extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea clientChatArea;
+    private javax.swing.JLabel clientIdLabel;
     private java.awt.TextField clientMessageArea;
-    private javax.swing.JLabel clientOwnIdLabel;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel labelYou;
     private javax.swing.JButton selectAllButton;
     private javax.swing.JButton sendButton;
     private javax.swing.JList<String> usersIdList;

@@ -171,9 +171,9 @@ public class ClientRegister extends javax.swing.JFrame {
             DataOutputStream dout = new DataOutputStream(s.getOutputStream());
             dout.writeUTF(id);
 
-            String i = new DataInputStream(s.getInputStream()).readUTF();
-            if (i.equals("You are already regidtrated")) {
-                JOptionPane.showMessageDialog(this, "You are already regidtrated\n");
+            String msgFromServer = new DataInputStream(s.getInputStream()).readUTF();
+                if (msgFromServer.equals("User with such ID already entered!")) {
+                JOptionPane.showMessageDialog(this, "This name already registrated!\n");
             } else {
                 new ClientView(id, s).setVisible(true);
                 this.dispose();

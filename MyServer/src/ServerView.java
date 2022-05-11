@@ -1,6 +1,7 @@
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -8,11 +9,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author Polina
@@ -20,10 +16,10 @@ import java.util.StringTokenizer;
 public class ServerView extends javax.swing.JFrame {
 
     /**
-     * Creates new form Server
+     * Creates new form ServerView
      */
     ServerSocket serverSocket;
-    HashMap clientCall = new HashMap();
+    HashMap allUserNameList = new HashMap();
     int port = 2089;
 
     public ServerView() {
@@ -44,17 +40,17 @@ public class ServerView extends javax.swing.JFrame {
         public void run() {
             while (true) {
                 try {
-                    Socket clientSocket = serverSocket.accept();// create a socket for client
-                    String i = new DataInputStream(clientSocket.getInputStream()).readUTF();// this will receive the username sent from client register view
-                    if (clientCall.containsKey(i)) {
+                    Socket clientSocket = serverSocket.accept();// accept() будет ждать пока //кто-нибудь не захочет подключиться
+                    String userIdMsg = new DataInputStream(clientSocket.getInputStream()).readUTF();// this will receive the username sent from client register view
+                    if (allUserNameList.containsKey(userIdMsg)) {
                         DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
-                        dout.writeUTF("User with such ID is already entered!");
+                        dout.writeUTF("User with such ID already entered!");
                     } else {
-                        clientCall.put(i, clientSocket);
-                        serverChatArea.append("< " + i + " > " + " Joined chat\n");
+                        allUserNameList.put(userIdMsg, clientSocket);
+                        serverChatArea.append("< " + userIdMsg + " > " + " Joined chat!\n");
                         DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
                         dout.writeUTF("");
-                        new MessageReader(clientSocket, i).start();
+                        new MessageReader(clientSocket, userIdMsg).start();
                         new PrepareClientList().start();
                     }
                 } catch (Exception ex) {
@@ -76,38 +72,38 @@ public class ServerView extends javax.swing.JFrame {
 
         @Override
         public void run() {
-            while (!clientCall.isEmpty()) {
+            while (!allUserNameList.isEmpty() && allUserNameList != null) {
                 try {
                     String message = new DataInputStream(s.getInputStream()).readUTF(); // read message from client
-                    if (message.equals("wequrypisjbh124567890QWERTYUIOPASDFGHJKL:ZXCVBNM<>?")) {//(хз, но наверное если такое сообщение пришло от клаента, то его выкидывает)
-                        clientCall.remove(ID);
+                    if (message.equals("I am exiting")) {//(хз, но наверное если такое сообщение пришло от клаента, то его выкидывает)
+                        allUserNameList.remove(ID);
                         serverChatArea.append(ID + "Went out.\n");
                         new PrepareClientList().start();
 
-                        Set k = clientCall.keySet();
+                        Set k = allUserNameList.keySet();
                         Iterator itr = k.iterator();
                         while (itr.hasNext()) {
                             String key = (String) itr.next();
                             if (!key.equalsIgnoreCase(ID)) {
                                 try {
-                                    new DataOutputStream(((Socket) clientCall.get(key)).getOutputStream()).writeUTF("< " + ID + " >" + message);
+                                    new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + ID + " >" + message);
                                 } catch (Exception ex) {
-                                    clientCall.remove(key);
+                                    allUserNameList.remove(key);
                                     serverChatArea.append(key + ": removed.\n");
                                     new PrepareClientList().start();
                                 }
                             }
                         }
-                    } else if (message.contains("2134123@@@@@#42")) {
-                        message = message.substring(20);
+                    } else if (message.contains("Sending to one person")) {
+                        message = message.substring(21);
                         StringTokenizer st = new StringTokenizer(message, ":");
                         String id = st.nextToken();
                         message = st.nextToken();
                         try {
-                            new DataOutputStream(((Socket) clientCall.get(id)).getOutputStream())
+                            new DataOutputStream(((Socket) allUserNameList.get(id)).getOutputStream())
                                     .writeUTF("< " + ID + " to " + id + " > " + message);
                         } catch (Exception ex) {
-                            clientCall.remove(id);
+                            allUserNameList.remove(id);
                             serverChatArea.append(id + " removed!\n");
                             new PrepareClientList().start();
                         }
@@ -127,7 +123,7 @@ public class ServerView extends javax.swing.JFrame {
         public void run() {
             try {
                 String ids = "";
-                Set k = clientCall.keySet();
+                Set k = allUserNameList.keySet();
                 Iterator itr = k.iterator();
                 while (itr.hasNext()) {
                     String key = (String) itr.next();
@@ -141,10 +137,10 @@ public class ServerView extends javax.swing.JFrame {
                 while (itr.hasNext()) {
                     String key = (String) itr.next();
                     try {
-                        new DataOutputStream(((Socket) clientCall.get(key)).getOutputStream()).writeUTF(":;.,/=" + ids);
-                    } catch (Exception ex) {
-                        clientCall.remove(key);
-                        serverChatArea.append(key + " removed!");
+                        new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF(":;?./=" + ids);
+                    } catch (IOException ex) {
+                        allUserNameList.remove(key);
+                        serverChatArea.append(key + " Removed!");
                     }
                 }
             } catch (Exception ex) {
