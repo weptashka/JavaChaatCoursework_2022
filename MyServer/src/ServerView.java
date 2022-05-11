@@ -28,7 +28,7 @@ public class ServerView extends javax.swing.JFrame {
             serverSocket = new ServerSocket(port);
             this.sStatusLabel.setText("Server Started on port " + port);
 
-            new ClientAccept().start();// (ClientAccept -- is the thread) this will create a thread for client
+            new ClientAccept().start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -40,7 +40,7 @@ public class ServerView extends javax.swing.JFrame {
         public void run() {
             while (true) {
                 try {
-                    Socket clientSocket = serverSocket.accept();// accept() будет ждать пока //кто-нибудь не захочет подключиться
+                    Socket clientSocket = serverSocket.accept();
                     String userIdMsg = new DataInputStream(clientSocket.getInputStream()).readUTF();// this will receive the username sent from client register view
                     if (allUserNameList.containsKey(userIdMsg)) {
                         DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
@@ -77,7 +77,7 @@ public class ServerView extends javax.swing.JFrame {
                     String message = new DataInputStream(s.getInputStream()).readUTF(); // read message from client
                     if (message.equals("I am exiting")) {//(хз, но наверное если такое сообщение пришло от клаента, то его выкидывает)
                         allUserNameList.remove(ID);
-                        serverChatArea.append(ID + "Went out.\n");
+                        serverChatArea.append("< " + ID + " > Went out.\n");
                         new PrepareClientList().start();
 
                         Set k = allUserNameList.keySet();
@@ -94,8 +94,8 @@ public class ServerView extends javax.swing.JFrame {
                                 }
                             }
                         }
-                    } else if (message.contains("Sending to one person")) {
-                        message = message.substring(21);
+                    } else if (message.contains("Sending to one person")) { // если сообщение начинается с "Sending to one person"
+                        message = message.substring(21); // то мы стираем это начало
                         StringTokenizer st = new StringTokenizer(message, ":");
                         String id = st.nextToken();
                         message = st.nextToken();
@@ -117,28 +117,28 @@ public class ServerView extends javax.swing.JFrame {
 
     }
 
-    class PrepareClientList extends Thread {
+    class PrepareClientList extends Thread { // этот класс отсылает 
 
         @Override
         public void run() {
             try {
-                String ids = "";
-                Set k = allUserNameList.keySet();
+                String ids = ""; // будующая строка с Id клиентов через запятую
+                Set k = allUserNameList.keySet(); // k - список id активных пользователей
                 Iterator itr = k.iterator();
-                while (itr.hasNext()) {
+                while (itr.hasNext()) { 
                     String key = (String) itr.next();
-                    ids += key + ",";
+                    ids += key + ",";//добавлем в ids id следующего пользователя 
                 }
                 if (ids.length() != 0) {
-                    ids = ids.substring(0, ids.length() - 1);
+                    ids = ids.substring(0, ids.length() - 1); // удаляем последнюю запятую в строке с id всех пользователей
                 }
 
                 itr = k.iterator();
                 while (itr.hasNext()) {
                     String key = (String) itr.next();
-                    try {
-                        new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF(":;?./=" + ids);
-                    } catch (IOException ex) {
+                    try {//пробуем отослать клиенту список активных участников
+                        new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("===userIds===" + ids);
+                    } catch (IOException ex) { // если сервер не смог отослать список активных участников чата этому клиенту, то его id  удаляется из списка и на экран выводится <id клиента> Removed!
                         allUserNameList.remove(key);
                         serverChatArea.append(key + " Removed!");
                     }

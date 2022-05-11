@@ -37,8 +37,8 @@ public class ClientRegister extends javax.swing.JFrame {
         connectButton = new javax.swing.JButton();
         registrationLabel = new javax.swing.JLabel();
         yourIDLabel = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        hostLabel = new javax.swing.JLabel();
+        portLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setLocation(new java.awt.Point(0, 0));
@@ -89,13 +89,13 @@ public class ClientRegister extends javax.swing.JFrame {
         yourIDLabel.setForeground(new java.awt.Color(128, 43, 177));
         yourIDLabel.setText("Your ID:");
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(128, 43, 177));
-        jLabel1.setText("Host: ");
+        hostLabel.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
+        hostLabel.setForeground(new java.awt.Color(128, 43, 177));
+        hostLabel.setText("Host: ");
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(128, 43, 177));
-        jLabel2.setText("Port:");
+        portLabel.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
+        portLabel.setForeground(new java.awt.Color(128, 43, 177));
+        portLabel.setText("Port:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -112,8 +112,8 @@ public class ClientRegister extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(28, 28, 28)
-                                .addComponent(jLabel1))
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(hostLabel))
+                            .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(yourIDLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -135,11 +135,11 @@ public class ClientRegister extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(hostLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(postField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                    .addComponent(portLabel))
                 .addGap(18, 18, 18)
                 .addComponent(connectButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(22, Short.MAX_VALUE))
@@ -173,7 +173,7 @@ public class ClientRegister extends javax.swing.JFrame {
 
             String msgFromServer = new DataInputStream(s.getInputStream()).readUTF();
                 if (msgFromServer.equals("User with such ID already entered!")) {
-                JOptionPane.showMessageDialog(this, "This name already registrated!\n");
+                JOptionPane.showMessageDialog(this, "This name already registrated!\nPlease, change your ID and try again");
             } else {
                 new ClientView(id, s).setVisible(true);
                 this.dispose();
@@ -221,9 +221,9 @@ public class ClientRegister extends javax.swing.JFrame {
     private javax.swing.JTextField clientIdField;
     private javax.swing.JButton connectButton;
     private javax.swing.JTextField hostField;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel hostLabel;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel portLabel;
     private javax.swing.JTextField postField;
     private javax.swing.JLabel registrationLabel;
     private javax.swing.JLabel yourIDLabel;

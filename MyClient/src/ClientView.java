@@ -42,25 +42,25 @@ public class ClientView extends javax.swing.JFrame {
         }
     }
 
-    class Read extends Thread {
+    class Read extends Thread { //класс для получения списка id пользовательлей от  сервера
 
         @Override
         public void run() {
             while (true) {
                 try {
-                    String msgFromServer = din.readUTF(); //read message from server
-                    if (msgFromServer.contains(":;?./=")) { //if our message contains this symbols (говно какое-то)
-                        msgFromServer = msgFromServer.substring(6);
+                    String msgFromServer = din.readUTF(); 
+                    if (msgFromServer.contains("===userIds===")) { //в сообщении присутствуют данные символы,то мы понимаем, что это то самое сообщение со списким id  от сервера
+                        msgFromServer = msgFromServer.substring(13); // обрезаем ===userIds=== из пришедшего списка id
                         dlm.clear();
-                            StringTokenizer st = new StringTokenizer(msgFromServer, ","); // split all the clientIds and add to dm below(?)
+                            StringTokenizer st = new StringTokenizer(msgFromServer, ","); // разделяем имена по запятой и добавляем в конец dlm
                         while (st.hasMoreTokens()) {
                             String buffID = st.nextToken();
-                            if (!iD.equals(buffID)) { //to not to show own user's id in usersList
-                                dlm.addElement(buffID); //add all the active user ids to the usersList to display 
+                            if (!iD.equals(buffID)) { //если пришедшее id не совпадает с id  данного пользователя, то добавляем его в dlm
+                                dlm.addElement(buffID);
                             }
                         }
-                    } else {
-                        clientChatArea.append("" + msgFromServer + "\n");//otherwise print on the clients message board
+                    } else {// если же в сообщении НЕ присутствуют данные символы "===userIds==="? печатаем на стороне клиента вот 
+                        clientChatArea.append("" + msgFromServer + "-- if you see this message then you receive wrong message from server instead from users ids\n");//otherwise print on the clients message board
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -93,6 +93,11 @@ public class ClientView extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClientView");
         setMinimumSize(new java.awt.Dimension(400, 300));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(45, 40, 62));
         jPanel1.setMaximumSize(new java.awt.Dimension(1920, 1080));
@@ -113,6 +118,11 @@ public class ClientView extends javax.swing.JFrame {
         selectAllButton.setForeground(new java.awt.Color(209, 215, 224));
         selectAllButton.setText("Select All");
         selectAllButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        selectAllButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllButtonActionPerformed(evt);
+            }
+        });
 
         clientChatArea.setColumns(20);
         clientChatArea.setRows(5);
@@ -129,6 +139,11 @@ public class ClientView extends javax.swing.JFrame {
             }
         });
 
+        usersIdList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                usersIdListValueChanged(evt);
+            }
+        });
         jScrollPane3.setViewportView(usersIdList);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -140,20 +155,17 @@ public class ClientView extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(selectAllButton, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
                         .addComponent(labelYou, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(clientIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(clientMessageArea, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(clientMessageArea, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(sendButton, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -203,11 +215,11 @@ public class ClientView extends javax.swing.JFrame {
             String mm = m;
             String cID = clientID;
 
-            if (!clientID.isEmpty()) {
-                m = "Sending to one person" + cID + " > " + mm + "\n";
+            if (!clientID.isEmpty()) { //если clientID (тот один, кому мы хотим послать сообщение) не пуст "", то посылаем
+                m = "Sending to one person:" + cID + ":" + mm + "\n";
                 dout.writeUTF(m);
                 clientMessageArea.setText("");
-                clientChatArea.append("< YOU send message to " + cID + " > " + mm + "\n");
+                clientChatArea.append("< YOU to " + cID + " > " + mm + "\n");
             } else {
                 dout.writeUTF(m);
                 clientMessageArea.setText("");
@@ -218,23 +230,26 @@ public class ClientView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_clientMessageAreaActionPerformed
 
-    private void formWindowClosing(java.awt.event.WindowEvent evt) {
-        String i = "I am exiting";
+    private void usersIdListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_usersIdListValueChanged
+        clientID = (String)usersIdList.getSelectedValue();
+    }//GEN-LAST:event_usersIdListValueChanged
+
+    private void selectAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllButtonActionPerformed
+        clientID = "";
+    }//GEN-LAST:event_selectAllButtonActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+                String i = "I am exiting";
         try {
             dout.writeUTF(i);
             this.dispose();
         } catch (IOException ex) {
             Logger.getLogger(ClientView.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+    }//GEN-LAST:event_formWindowClosing
 
-    private void ULValueChanged(javax.swing.event.ListSelectionEvent evt) {
-        clientID = (String)usersIdList.getSelectedValue();
-    }
 
-    private void selectAllActionPerformed(java.awt.event.ActionEvent evt) {
-        clientID = "";
-    }
+
 
     /**
      * @param args the command line arguments
