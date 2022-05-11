@@ -1,6 +1,7 @@
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -32,6 +34,12 @@ public class ServerView extends javax.swing.JFrame {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        try {
+            setIconImage(ImageIO.read(new File("../img/msg.png")));
+            setTitle("ChatApp");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     class ClientAccept extends Thread {
@@ -53,15 +61,15 @@ public class ServerView extends javax.swing.JFrame {
                         new MessageReader(clientSocket, userIdMsg).start();
                         new PrepareClientList().start();
 
-                      Set<String> k = allUserNameList.keySet();
+                        Set<String> k = allUserNameList.keySet();
                         Iterator itr = k.iterator();
                         while (itr.hasNext()) {
                             String key = (String) itr.next();
-                                try {
-                                    new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + userIdMsg + " > Joined chat!");
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
+                            try {
+                                new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + userIdMsg + " > Joined chat!");
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
                 } catch (Exception ex) {
@@ -100,7 +108,7 @@ public class ServerView extends javax.swing.JFrame {
                                     new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + ID + " > Disconnected...");
                                 } catch (Exception ex) {
                                     allUserNameList.remove(key);
-                                    serverChatArea.append(key + ": removed.\n");
+                                    serverChatArea.append(key + ": Disconnected...\n");
                                     new PrepareClientList().start();
                                 }
                             }
@@ -115,11 +123,10 @@ public class ServerView extends javax.swing.JFrame {
                                     .writeUTF("< " + ID + " to " + id + " > " + message);
                         } catch (Exception ex) {
                             allUserNameList.remove(id);
-                            serverChatArea.append(id + " removed!\n");
+                            serverChatArea.append(id + " Removed!\n");
                             new PrepareClientList().start();
                         }
-                    }
-                   else if (message.contains("Sending to All")) { // если сообщение начинается с "Sending to all"
+                    } else if (message.contains("Sending to All")) { // если сообщение начинается с "Sending to all"
                         message = message.substring(14); // то мы стираем это начало
 
                         Set<String> k = allUserNameList.keySet();
@@ -135,7 +142,6 @@ public class ServerView extends javax.swing.JFrame {
                             }
                         }
                     }
-
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -153,7 +159,7 @@ public class ServerView extends javax.swing.JFrame {
                 String ids = ""; // будующая строка с Id клиентов через запятую
                 Set k = allUserNameList.keySet(); // k - список id активных пользователей
                 Iterator itr = k.iterator();
-                while (itr.hasNext()) { 
+                while (itr.hasNext()) {
                     String key = (String) itr.next();
                     ids += key + ",";//добавлем в ids id следующего пользователя 
                 }
@@ -202,6 +208,7 @@ public class ServerView extends javax.swing.JFrame {
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(377, 356));
 
+        serverChatArea.setEditable(false);
         serverChatArea.setColumns(20);
         serverChatArea.setRows(5);
         jScrollPane1.setViewportView(serverChatArea);

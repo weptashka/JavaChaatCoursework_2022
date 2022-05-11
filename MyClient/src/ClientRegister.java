@@ -2,8 +2,10 @@
 import java.awt.HeadlessException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 /**
@@ -19,6 +21,12 @@ public class ClientRegister extends javax.swing.JFrame {
      */
     public ClientRegister() {
         initComponents();
+        try {
+            setIconImage(ImageIO.read(new File("../img/msg.png")));
+            setTitle("ChatApp");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -61,11 +69,13 @@ public class ClientRegister extends javax.swing.JFrame {
 
         hostField.setBackground(new java.awt.Color(209, 215, 224));
         hostField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        hostField.setText("localhost");
         hostField.setBorder(new javax.swing.border.MatteBorder(null));
         hostField.setPreferredSize(new java.awt.Dimension(90, 25));
 
         postField.setBackground(new java.awt.Color(209, 215, 224));
         postField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        postField.setText("2089");
         postField.setBorder(new javax.swing.border.MatteBorder(null));
         postField.setPreferredSize(new java.awt.Dimension(90, 25));
 
@@ -172,7 +182,7 @@ public class ClientRegister extends javax.swing.JFrame {
             dout.writeUTF(id);
 
             String msgFromServer = new DataInputStream(s.getInputStream()).readUTF();
-                if (msgFromServer.equals("User with such ID already entered!")) {
+            if (msgFromServer.equals("User with such ID already entered!")) {
                 JOptionPane.showMessageDialog(this, "This name already registrated!\nPlease, change your ID and try again");
             } else {
                 new ClientView(id, s).setVisible(true);

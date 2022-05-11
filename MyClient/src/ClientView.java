@@ -1,11 +1,13 @@
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
@@ -26,6 +28,12 @@ public class ClientView extends javax.swing.JFrame {
      */
     public ClientView() {
         initComponents();
+        try {
+            setIconImage(ImageIO.read(new File("../img/msg.png")));
+            setTitle("ChatApp");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public ClientView(String id, Socket s) {
@@ -49,11 +57,11 @@ public class ClientView extends javax.swing.JFrame {
         public void run() {
             while (true) {
                 try {
-                    String msgFromServer = din.readUTF(); 
+                    String msgFromServer = din.readUTF();
                     if (msgFromServer.contains("===userIds===")) { //в сообщении присутствуют данные символы,то мы понимаем, что это то самое сообщение со списким id  от сервера
                         msgFromServer = msgFromServer.substring(13); // обрезаем ===userIds=== из пришедшего списка id
                         usersListModel.clear();
-                            StringTokenizer st = new StringTokenizer(msgFromServer, ","); // разделяем имена по запятой и добавляем в конец usersListModel
+                        StringTokenizer st = new StringTokenizer(msgFromServer, ","); // разделяем имена по запятой и добавляем в конец usersListModel
                         while (st.hasMoreTokens()) {
                             String buffID = st.nextToken();
                             if (!iD.equals(buffID)) { //если пришедшее id не совпадает с id  данного пользователя, то добавляем его в usersListModel
@@ -61,7 +69,7 @@ public class ClientView extends javax.swing.JFrame {
                             }
                         }
                     } else {// если же в сообщении НЕ присутствуют данные символы "===userIds==="? печатаем на стороне клиента вот 
-                        clientChatArea.append("" + msgFromServer + "\n");//в инном случае напечатать сообщение от другого пользователя
+                        clientChatArea.append(msgFromServer + "\n");//в инном случае напечатать сообщение от другого пользователя
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -92,7 +100,9 @@ public class ClientView extends javax.swing.JFrame {
         usersIdList = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("ClientView");
+        setTitle("Client Chat");
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setIconImages(null);
         setMinimumSize(new java.awt.Dimension(400, 300));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -125,6 +135,7 @@ public class ClientView extends javax.swing.JFrame {
             }
         });
 
+        clientChatArea.setEditable(false);
         clientChatArea.setColumns(20);
         clientChatArea.setRows(5);
         jScrollPane1.setViewportView(clientChatArea);
@@ -133,6 +144,11 @@ public class ClientView extends javax.swing.JFrame {
         sendButton.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
         sendButton.setForeground(new java.awt.Color(209, 215, 224));
         sendButton.setText("Send");
+        sendButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendButtonActionPerformed(evt);
+            }
+        });
 
         clientMessageArea.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -214,19 +230,21 @@ public class ClientView extends javax.swing.JFrame {
     private void clientMessageAreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientMessageAreaActionPerformed
         try {
             String messageToServer = clientMessageArea.getText(); // посылаемое соообщение серверу
-            String messageText = messageToServer;// сообщение, которое увидят пользователи
-            String receivingClientID = clientID; //ID клиента, которому посылаем
+            if (!messageToServer.equals("") && !messageToServer.isEmpty()) {
+                String messageText = messageToServer;// сообщение, которое увидят пользователи
+                String receivingClientID = clientID; //ID клиента, которому посылаем
 
-            if (!clientID.isEmpty()) { //если clientID (тот один, кому мы хотим послать сообщение) не пуст "", то посылаем
-                messageToServer = "Sending to one person" + receivingClientID + ":" + messageText + "\n";
-                dout.writeUTF(messageToServer);
-                clientMessageArea.setText("");
-                clientChatArea.append("< YOU to " + receivingClientID + " > " + messageText + "\n");
-            } else {
-                messageToServer = "Sending to All" + messageText + "\n";
-                dout.writeUTF(messageToServer);
-                clientMessageArea.setText("");
-                clientChatArea.append("< YOU to All >" + messageText + "\n");
+                if (!clientID.isEmpty()) { //если clientID (тот один, кому мы хотим послать сообщение) не пуст "", то посылаем
+                    messageToServer = "Sending to one person" + receivingClientID + ":" + messageText;
+                    dout.writeUTF(messageToServer);
+                    clientMessageArea.setText("");
+                    clientChatArea.append("< YOU to " + receivingClientID + " > " + messageText + "\n");
+                } else {
+                    messageToServer = "Sending to All" + messageText;
+                    dout.writeUTF(messageToServer);
+                    clientMessageArea.setText("");
+                    clientChatArea.append("< YOU to All >" + messageText + "\n");
+                }
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, " User does not exist anymore.");
@@ -234,7 +252,7 @@ public class ClientView extends javax.swing.JFrame {
     }//GEN-LAST:event_clientMessageAreaActionPerformed
 
     private void usersIdListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_usersIdListValueChanged
-        clientID = (String)usersIdList.getSelectedValue();
+        clientID = (String) usersIdList.getSelectedValue();
     }//GEN-LAST:event_usersIdListValueChanged
 
     private void selectAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllButtonActionPerformed
@@ -242,7 +260,7 @@ public class ClientView extends javax.swing.JFrame {
     }//GEN-LAST:event_selectAllButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-                String i = "I am disconnecting";
+        String i = "I am disconnecting";
         try {
             dout.writeUTF(i);
             this.dispose();
@@ -251,8 +269,29 @@ public class ClientView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_formWindowClosing
 
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+        try {
+            String messageToServer = clientMessageArea.getText(); // посылаемое соообщение серверу
+            if (!messageToServer.equals("") && !messageToServer.isEmpty()) {
+                String messageText = messageToServer;// сообщение, которое увидят пользователи
+                String receivingClientID = clientID; //ID клиента, которому посылаем
 
-
+                if (!clientID.isEmpty()) { //если clientID (тот один, кому мы хотим послать сообщение) не пуст "", то посылаем
+                    messageToServer = "Sending to one person" + receivingClientID + ":" + messageText;
+                    dout.writeUTF(messageToServer);
+                    clientMessageArea.setText("");
+                    clientChatArea.append("< YOU to " + receivingClientID + " > " + messageText + "\n");
+                } else {
+                    messageToServer = "Sending to All" + messageText;
+                    dout.writeUTF(messageToServer);
+                    clientMessageArea.setText("");
+                    clientChatArea.append("< YOU to All >" + messageText + "\n");
+                }
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, " User does not exist anymore.");
+        }
+    }//GEN-LAST:event_sendButtonActionPerformed
 
     /**
      * @param args the comessageTextand line arguments
