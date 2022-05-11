@@ -52,6 +52,17 @@ public class ServerView extends javax.swing.JFrame {
                         dout.writeUTF("");
                         new MessageReader(clientSocket, userIdMsg).start();
                         new PrepareClientList().start();
+
+                      Set<String> k = allUserNameList.keySet();
+                        Iterator itr = k.iterator();
+                        while (itr.hasNext()) {
+                            String key = (String) itr.next();
+                                try {
+                                    new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + userIdMsg + " > Joined chat!");
+                                } catch (IOException ex) {
+                                    ex.printStackTrace();
+                                }
+                        }
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -60,7 +71,7 @@ public class ServerView extends javax.swing.JFrame {
         }
     }
 
-    class MessageReader extends Thread { // this class reads the messages coming from client and take appropriate actions
+    class MessageReader extends Thread { // прослушивает сообщения от клиентов
 
         Socket s;
         String ID;
@@ -74,19 +85,19 @@ public class ServerView extends javax.swing.JFrame {
         public void run() {
             while (!allUserNameList.isEmpty() && allUserNameList != null) {
                 try {
-                    String message = new DataInputStream(s.getInputStream()).readUTF(); // read message from client
-                    if (message.equals("I am exiting")) {//(хз, но наверное если такое сообщение пришло от клаента, то его выкидывает)
+                    String message = new DataInputStream(s.getInputStream()).readUTF();
+                    if (message.equals("I am disconnecting")) {//если такое сообщение пришло от клаента, то его выкидывает
                         allUserNameList.remove(ID);
-                        serverChatArea.append("< " + ID + " > Went out.\n");
+                        serverChatArea.append("< " + ID + " > Disconnected...\n");
                         new PrepareClientList().start();
 
-                        Set k = allUserNameList.keySet();
+                        Set<String> k = allUserNameList.keySet();
                         Iterator itr = k.iterator();
                         while (itr.hasNext()) {
                             String key = (String) itr.next();
-                            if (!key.equalsIgnoreCase(ID)) {
+                            if (!key.equals(ID)) {
                                 try {
-                                    new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + ID + " >" + message);
+                                    new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + ID + " > Disconnected...");
                                 } catch (Exception ex) {
                                     allUserNameList.remove(key);
                                     serverChatArea.append(key + ": removed.\n");
@@ -108,6 +119,23 @@ public class ServerView extends javax.swing.JFrame {
                             new PrepareClientList().start();
                         }
                     }
+                   else if (message.contains("Sending to All")) { // если сообщение начинается с "Sending to all"
+                        message = message.substring(14); // то мы стираем это начало
+
+                        Set<String> k = allUserNameList.keySet();
+                        Iterator itr = k.iterator();
+                        while (itr.hasNext()) {
+                            String key = (String) itr.next();
+                            if (!key.equals(ID)) {
+                                try {
+                                    new DataOutputStream(((Socket) allUserNameList.get(key)).getOutputStream()).writeUTF("< " + ID + " to All > " + message);
+                                } catch (IOException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+
 
                 } catch (Exception ex) {
                     ex.printStackTrace();

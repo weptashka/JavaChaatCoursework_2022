@@ -15,10 +15,11 @@ import javax.swing.JOptionPane;
  */
 public class ClientView extends javax.swing.JFrame {
 
-    String iD, clientID = "";
+    String iD;
+    String clientID = "";
     DataOutputStream dout;
     DataInputStream din;
-    DefaultListModel dlm;
+    DefaultListModel usersListModel;
 
     /**
      * Creates new form ClientView
@@ -31,13 +32,13 @@ public class ClientView extends javax.swing.JFrame {
         this.iD = id;
         try {
             initComponents();
-            dlm = new DefaultListModel();
-            usersIdList.setModel(dlm);
+            usersListModel = new DefaultListModel();
+            usersIdList.setModel(usersListModel);
             clientIdLabel.setText(id);
             din = new DataInputStream(s.getInputStream());
             dout = new DataOutputStream(s.getOutputStream());
             new Read().start();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -51,16 +52,16 @@ public class ClientView extends javax.swing.JFrame {
                     String msgFromServer = din.readUTF(); 
                     if (msgFromServer.contains("===userIds===")) { //в сообщении присутствуют данные символы,то мы понимаем, что это то самое сообщение со списким id  от сервера
                         msgFromServer = msgFromServer.substring(13); // обрезаем ===userIds=== из пришедшего списка id
-                        dlm.clear();
-                            StringTokenizer st = new StringTokenizer(msgFromServer, ","); // разделяем имена по запятой и добавляем в конец dlm
+                        usersListModel.clear();
+                            StringTokenizer st = new StringTokenizer(msgFromServer, ","); // разделяем имена по запятой и добавляем в конец usersListModel
                         while (st.hasMoreTokens()) {
                             String buffID = st.nextToken();
-                            if (!iD.equals(buffID)) { //если пришедшее id не совпадает с id  данного пользователя, то добавляем его в dlm
-                                dlm.addElement(buffID);
+                            if (!iD.equals(buffID)) { //если пришедшее id не совпадает с id  данного пользователя, то добавляем его в usersListModel
+                                usersListModel.addElement(buffID);
                             }
                         }
                     } else {// если же в сообщении НЕ присутствуют данные символы "===userIds==="? печатаем на стороне клиента вот 
-                        clientChatArea.append("" + msgFromServer + "-- if you see this message then you receive wrong message from server instead from users ids\n");//otherwise print on the clients message board
+                        clientChatArea.append("" + msgFromServer + "\n");//в инном случае напечатать сообщение от другого пользователя
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -139,6 +140,7 @@ public class ClientView extends javax.swing.JFrame {
             }
         });
 
+        usersIdList.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
         usersIdList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 usersIdListValueChanged(evt);
@@ -211,19 +213,20 @@ public class ClientView extends javax.swing.JFrame {
 
     private void clientMessageAreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientMessageAreaActionPerformed
         try {
-            String m = clientMessageArea.getText();
-            String mm = m;
-            String cID = clientID;
+            String messageToServer = clientMessageArea.getText(); // посылаемое соообщение серверу
+            String messageText = messageToServer;// сообщение, которое увидят пользователи
+            String receivingClientID = clientID; //ID клиента, которому посылаем
 
             if (!clientID.isEmpty()) { //если clientID (тот один, кому мы хотим послать сообщение) не пуст "", то посылаем
-                m = "Sending to one person:" + cID + ":" + mm + "\n";
-                dout.writeUTF(m);
+                messageToServer = "Sending to one person" + receivingClientID + ":" + messageText + "\n";
+                dout.writeUTF(messageToServer);
                 clientMessageArea.setText("");
-                clientChatArea.append("< YOU to " + cID + " > " + mm + "\n");
+                clientChatArea.append("< YOU to " + receivingClientID + " > " + messageText + "\n");
             } else {
-                dout.writeUTF(m);
+                messageToServer = "Sending to All" + messageText + "\n";
+                dout.writeUTF(messageToServer);
                 clientMessageArea.setText("");
-                clientChatArea.append("< YOU to All >" + mm + "\n");
+                clientChatArea.append("< YOU to All >" + messageText + "\n");
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, " User does not exist anymore.");
@@ -239,7 +242,7 @@ public class ClientView extends javax.swing.JFrame {
     }//GEN-LAST:event_selectAllButtonActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-                String i = "I am exiting";
+                String i = "I am disconnecting";
         try {
             dout.writeUTF(i);
             this.dispose();
@@ -252,7 +255,7 @@ public class ClientView extends javax.swing.JFrame {
 
 
     /**
-     * @param args the command line arguments
+     * @param args the comessageTextand line arguments
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
