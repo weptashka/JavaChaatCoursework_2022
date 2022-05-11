@@ -28,18 +28,19 @@ public class ClientView extends javax.swing.JFrame {
      */
     public ClientView() {
         initComponents();
-        try {
-            setIconImage(ImageIO.read(new File("../img/msg.png")));
-            setTitle("ChatApp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public ClientView(String id, Socket s) {
         this.iD = id;
         try {
             initComponents();
+            try {
+                setIconImage(ImageIO.read(new File("../img/msg.png")));
+                setTitle("ChatApp");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             usersListModel = new DefaultListModel();
             usersIdList.setModel(usersListModel);
             clientIdLabel.setText(id);
@@ -247,7 +248,7 @@ public class ClientView extends javax.swing.JFrame {
                 }
             }
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, " User does not exist anymore.");
+            JOptionPane.showMessageDialog(this, "User does not exist anymore.");
         }
     }//GEN-LAST:event_clientMessageAreaActionPerformed
 
@@ -309,17 +310,11 @@ public class ClientView extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ClientView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ClientView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ClientView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ClientView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        //</editor-fold>
+
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

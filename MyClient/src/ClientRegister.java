@@ -21,12 +21,12 @@ public class ClientRegister extends javax.swing.JFrame {
      */
     public ClientRegister() {
         initComponents();
-        try {
-            setIconImage(ImageIO.read(new File("../img/msg.png")));
-            setTitle("ChatApp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                setIconImage(ImageIO.read(new File("../img/msg.png")));
+                setTitle("ChatApp");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     /**
@@ -49,6 +49,7 @@ public class ClientRegister extends javax.swing.JFrame {
         portLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setLocation(new java.awt.Point(0, 0));
         setMaximumSize(new java.awt.Dimension(288, 162));
         setMinimumSize(new java.awt.Dimension(288, 162));
@@ -116,12 +117,11 @@ public class ClientRegister extends javax.swing.JFrame {
                 .addComponent(connectButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(173, 173, 173))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(75, 75, 75)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(28, 28, 28)
+                                .addGap(103, 103, 103)
                                 .addComponent(hostLabel))
                             .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(yourIDLabel, javax.swing.GroupLayout.Alignment.TRAILING))
@@ -130,8 +130,10 @@ public class ClientRegister extends javax.swing.JFrame {
                             .addComponent(hostField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
                             .addComponent(clientIdField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(postField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(registrationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(94, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(87, 87, 87)
+                        .addComponent(registrationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -183,15 +185,17 @@ public class ClientRegister extends javax.swing.JFrame {
 
             String msgFromServer = new DataInputStream(s.getInputStream()).readUTF();
             if (msgFromServer.equals("User with such ID already entered!")) {
-                JOptionPane.showMessageDialog(this, "This name already registrated!\nPlease, change your ID and try again");
+                JOptionPane.showMessageDialog(this, "This ID already registrated!\nPlease, change your ID and try again");
+            }else if (id.equals("")) {
+                JOptionPane.showMessageDialog(this, "Please, enter your ID");
             } else {
                 new ClientView(id, s).setVisible(true);
                 this.dispose();
 
             }
 
-        } catch (HeadlessException | IOException ex) {
-            ex.printStackTrace();
+        } catch (NumberFormatException | IOException ex) {
+            JOptionPane.showMessageDialog(this, "Incorrect data entered!\nPlease, check host and port and try again");
         }
 
     }//GEN-LAST:event_connectButtonActionPerformed
@@ -207,13 +211,7 @@ public class ClientRegister extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ClientRegister.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ClientRegister.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ClientRegister.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ClientRegister.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 

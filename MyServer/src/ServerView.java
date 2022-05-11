@@ -29,11 +29,11 @@ public class ServerView extends javax.swing.JFrame {
             initComponents();
             serverSocket = new ServerSocket(port);
             this.sStatusLabel.setText("Server Started on port " + port);
-
             new ClientAccept().start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
         try {
             setIconImage(ImageIO.read(new File("../img/msg.png")));
             setTitle("ChatApp");
