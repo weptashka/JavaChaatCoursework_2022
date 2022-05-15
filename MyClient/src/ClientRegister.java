@@ -21,12 +21,12 @@ public class ClientRegister extends javax.swing.JFrame {
      */
     public ClientRegister() {
         initComponents();
-            try {
-                setIconImage(ImageIO.read(new File("../img/msg.png")));
-                setTitle("ChatApp");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            setIconImage(ImageIO.read(new File("../img/msg.png")));
+            setTitle("ChatApp");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -70,13 +70,11 @@ public class ClientRegister extends javax.swing.JFrame {
 
         hostField.setBackground(new java.awt.Color(209, 215, 224));
         hostField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        hostField.setText("localhost");
         hostField.setBorder(new javax.swing.border.MatteBorder(null));
         hostField.setPreferredSize(new java.awt.Dimension(90, 25));
 
         postField.setBackground(new java.awt.Color(209, 215, 224));
         postField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        postField.setText("2089");
         postField.setBorder(new javax.swing.border.MatteBorder(null));
         postField.setPreferredSize(new java.awt.Dimension(90, 25));
 
@@ -186,18 +184,15 @@ public class ClientRegister extends javax.swing.JFrame {
             String msgFromServer = new DataInputStream(s.getInputStream()).readUTF();
             if (msgFromServer.equals("User with such ID already entered!")) {
                 JOptionPane.showMessageDialog(this, "This ID already registrated!\nPlease, change your ID and try again");
-            }else if (id.equals("")) {
+            } else if (id.equals("")) {
                 JOptionPane.showMessageDialog(this, "Please, enter your ID");
             } else {
                 new ClientView(id, s).setVisible(true);
                 this.dispose();
-
             }
-
         } catch (NumberFormatException | IOException ex) {
             JOptionPane.showMessageDialog(this, "Incorrect data entered!\nPlease, check host and port and try again");
         }
-
     }//GEN-LAST:event_connectButtonActionPerformed
 
     /**

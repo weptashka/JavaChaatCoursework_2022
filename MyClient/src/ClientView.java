@@ -105,6 +105,7 @@ public class ClientView extends javax.swing.JFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setIconImages(null);
         setMinimumSize(new java.awt.Dimension(400, 300));
+        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -112,7 +113,7 @@ public class ClientView extends javax.swing.JFrame {
         });
 
         jPanel1.setBackground(new java.awt.Color(45, 40, 62));
-        jPanel1.setMaximumSize(new java.awt.Dimension(1920, 1080));
+        jPanel1.setMaximumSize(new java.awt.Dimension(400, 300));
         jPanel1.setMinimumSize(new java.awt.Dimension(400, 300));
         jPanel1.setPreferredSize(new java.awt.Dimension(400, 300));
         jPanel1.setRequestFocusEnabled(false);

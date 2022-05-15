@@ -30,7 +30,7 @@ public class ServerView extends javax.swing.JFrame {
             serverSocket = new ServerSocket(port);
             this.sStatusLabel.setText("Server Started on port " + port);
             new ClientAccept().start();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
 
@@ -201,9 +201,12 @@ public class ServerView extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MyServer");
+        setMaximumSize(new java.awt.Dimension(400, 400));
         setMinimumSize(new java.awt.Dimension(400, 400));
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(45, 40, 62));
+        jPanel1.setMaximumSize(new java.awt.Dimension(400, 400));
         jPanel1.setMinimumSize(new java.awt.Dimension(400, 400));
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(377, 356));
